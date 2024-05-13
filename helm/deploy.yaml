@@ -2,6 +2,7 @@
 # Source: example/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
+namespace: springboot
 metadata:
   name: release-name-example
   labels:
@@ -15,6 +16,7 @@ automountServiceAccountToken: true
 # Source: example/templates/service.yaml
 apiVersion: v1
 kind: Service
+namespace: springboot
 metadata:
   name: release-name-example
   labels:
@@ -37,6 +39,7 @@ spec:
 # Source: example/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
+namespace: springboot
 metadata:
   name: release-name-example
   labels:
@@ -85,6 +88,7 @@ spec:
 # Source: example/templates/tests/test-connection.yaml
 apiVersion: v1
 kind: Pod
+namespace: springboot
 metadata:
   name: "release-name-example-test-connection"
   labels:
