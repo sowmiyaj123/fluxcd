@@ -1,0 +1,104 @@
+---
+# Source: example/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-example
+  labels:
+    helm.sh/chart: example-0.1.0
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: example/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-example
+  labels:
+    helm.sh/chart: example-0.1.0
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  ports:
+    - port: 8082
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: release-name
+---
+# Source: example/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-example
+  labels:
+    helm.sh/chart: example-0.1.0
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: example
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: example-0.1.0
+        app.kubernetes.io/name: example
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      imagePullSecrets:
+        - name: use-registry-secret
+      serviceAccountName: release-name-example
+      securityContext:
+        {}
+      containers:
+        - name: example
+          securityContext:
+            {}
+          image: "sowmiyajayakumar/test:v1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8082
+              protocol: TCP
+          livenessProbe:
+            null
+          readinessProbe:
+            null
+          resources:
+            {}
+---
+# Source: example/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-example-test-connection"
+  labels:
+    helm.sh/chart: example-0.1.0
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['release-name-example:8082']
+  restartPolicy: Never
